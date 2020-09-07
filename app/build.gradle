@@ -6,6 +6,17 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+androidGitVersion {
+    codeFormat 'MNNPPBB'
+    commitHashLength = 8
+    format '%tag%%-branch%'
+    hideBranches = [ 'master', 'prod' ]
+    prefix('v')
+    onlyIn('app')
+    tagPattern(/^$prefix[0-9]+.*/)
+    untrackedIsDirty = true
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -21,10 +32,39 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix = "-SNAPSHOT"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName = "app-${variant.name}-v${versionName}-c${versionCode}.apk"
+        }
+    }
+    flavorDimensions "api"
+    productFlavors {
+        dev {
+            dimension "api"
+            versionNameSuffix "-${androidGitVersion.code() % 100}-dev"
+        }
+        staging {
+            dimension "api"
+            versionNameSuffix "-${androidGitVersion.code() % 100}-stg"
+        }
+        prod {
+            dimension "api"
+            versionNameSuffix "-${androidGitVersion.code() % 100}-prd"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
