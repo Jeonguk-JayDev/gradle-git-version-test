@@ -9,7 +9,7 @@ apply plugin: 'kotlin-android-extensions'
 androidGitVersion {
     codeFormat 'MNNPPBB'
     commitHashLength = 8
-    format '%tag%%-branch%'
+    format '%tag%'
     hideBranches = [ 'master', 'prod' ]
     prefix('v')
     onlyIn('app')
